@@ -3,7 +3,9 @@
 window.onload = function(){
 
 var board = $("#main-container"),
-	firstClick = false;
+	firstClick = false,
+	winner = false,
+	numMines = 10
 	
 
 var minedSpot = {
@@ -23,8 +25,6 @@ var freeSpot = {
 
 
 	function createBoard(v){
-
-
 
 	  	// Create 9 rows
 	    for (var i = 0; i < v; i++){
@@ -62,8 +62,6 @@ createBoard(9)
 
 	$( ".cell" ).click(function() {
 
-		
-
 		// alert($(this).attr('class') + $(this).parent().attr('class'))
 		clickedRow = parseInt($(this).parent().attr('data-row')) 
 		clickedCell = parseInt($(this).attr("data-cell"))
@@ -73,20 +71,38 @@ createBoard(9)
 		if (firstClick === false) {
 
 			matrix[clickedRow][clickedCell] = freeSpot = {
+												
 												mined: false,
 												clue: false,
 												clicked: true,
 												revealed: false,
 												nextToMines: 0
-											}; // Set this square as start square
+											}; 
+
+			// Set this square as start square
 			matrix[clickedRow][clickedCell]["clicked"] = true;
 			firstClick = true;
 			matrix = placeMines(matrix)
 			renderMines(matrix)
 			renderClues(matrix)
 			revealSquares()
+			
 
 		} // FirstClick check
+
+		else {
+
+			if (matrix[clickedRow][clickedCell]["mined"] === true) {
+				alert("dead")
+				gameOver()
+			} 
+
+
+			else { revealSquares();
+				   winConditionCheck();
+			}
+			
+		}
 
 
 	}) // End (.cell).click
@@ -94,7 +110,7 @@ createBoard(9)
 
 	function placeMines(matrix) {
 
-
+		// fill the spaces that are free (== undefined) with freeSpot objects
 		for (var x = 0; x < matrix.length; x++) {
 			for (var y = 0; y < matrix.length; y++) {
 				if (matrix[x][y] === undefined){
@@ -110,65 +126,33 @@ createBoard(9)
 		}
 
 		// create 10 mines
-		// Generate a random X and Y co-ord
-		for (var i = 0; i < 10; i++) {
-			
+		
+		for (var i = 0; i < numMines; i++) {
+			// Generate a random X and Y co-ord
 			var randomX = Math.round(Math.random() * 8),
 				randomY = Math.round(Math.random() * 8);
-			// check we dont place a mine in our start point
-		
-				
-				
-						
-					// while (matrix[randomX][randomY]["mined"] === true){
-					// 	randomX = Math.round(Math.random() * 8);
-					// 	randomY = Math.round(Math.random() * 8);
-					// 	console.log("stopped repeated mine placement")
-					// 	checkStartPlace()
-
-					// }
-
+			
+	
+					// check we dont place a mine in our start point or a previous mine
 					while (matrix[randomX][randomY]["clicked"] === true || matrix[randomX][randomY]["mined"] === true){
 						randomX = Math.round(Math.random() * 8);
 						randomY = Math.round(Math.random() * 8);
 						console.log("stopped starting sq mine placement")
 						
 					} 
-
-
 					
-						matrix[randomX][randomY] = {
-																	mined: true,
-																	clue: false,
-																	clicked: false,
-																	revealed: false,
-																	nextToMines: 0
-																}
+					// assign the new mine object to the matrix
+					matrix[randomX][randomY] = {
+												mined: true,
+												clue: false,
+												clicked: false,
+												revealed: false,
+												nextToMines: 0
+															  }
 						
-					
-					
-					
-						
-					
-					
-				
-
-				
-			
-				
-			
-
-			// check we dont place a mine on a spot that already has an existing mine
-			
-			
-			// assign the new mine object to the matrix
-			
-
-			
+	
 		};
-		// fill the spaces that are free (not previously mined == undefined) with freeSpot objects 
-		
-		
+		 
 			
 			return matrix
 
@@ -185,7 +169,7 @@ createBoard(9)
 				if (matrix[x][y]["mined"] === true) {
 							
 						// console.log("x is " + (x) + " y is " + (y))				
-						$(".row" + x).find(".cell" + y).css("background", "blue")	
+						// $(".row" + x).find(".cell" + y).css("background", "blue")	
 					
 				}
 
@@ -245,7 +229,8 @@ createBoard(9)
 		// Keeps a count of a clues surrounding mines and updates
 		function addNumberClue(x, y){
 			matrix[x][y]["nextToMines"] = counter
-			$(".row" + x).find(".cell" + y).text(counter++)
+			// $(".row" + x).find(".cell" + y).text(counter++) 1ST VER
+			counter++
 			matrix[x][y]["clue"] = true
 
 			return counter
@@ -259,22 +244,27 @@ createBoard(9)
 		resetVars()
 		floodFill(x, y)
 
-
+		// this reveals the squares (from the user click start point)
 		function floodFill(x, y){
 
+		// this var allows us to stop revealing after we hit one clue square	
 		var onClue = false
 
 			if( x >= 0 && x <= 8 && y >= 0 && y <= 8 ){
-				
+				// if our square is empty and unrevealed
 				if ( matrix[x][y]["mined"] === false && matrix[x][y]["revealed"] === false ){
-					
+						// if we're a freespot next to mines
 						if (matrix[x][y]["nextToMines"] > 0 && onClue === false){
-
+							// set the square to revealed, else we'll continue into infinity
 							matrix[x][y]["revealed"] = true;
 							$(".row" + x).find(".cell" + y).css("background", "red")
+							// reveal the clue
+							$(".row" + x).find(".cell" + y).text(matrix[x][y]["nextToMines"])
+							// Now we are finished on our clue square, we DONT want to continue to the next clue square, otherwise we'll flood the board
+							// and the only hidden squares will be the mines, a very easy game then
 							onClue = true
 						}
-
+						// In this case we're on a non-clue square, so just reveal
 						if (matrix[x][y]["nextToMines"] === 0 && onClue === false){
 
 							matrix[x][y]["revealed"] = true;
@@ -283,7 +273,7 @@ createBoard(9)
 						} else { return }
 
 
-
+					// Recursive operations that fill the board - quite ineffcient but works
 					floodFill(x - 1, y);
 					floodFill(x + 1, y);
             		floodFill(x, y - 1);
@@ -296,13 +286,7 @@ createBoard(9)
 
 		}
 			
-
-
-
-
-			
-			
-
+		// These vars start off the reveal function
 		function resetVars(){
 
 			x = parseInt(clickedRow)
@@ -311,6 +295,32 @@ createBoard(9)
 		}
 
 	} // End revealSquares
+
+	function winConditionCheck(){
+
+		countRevealedSquares = 1;
+
+		for (var x = 0; x < matrix.length; x++) {
+			for (var y = 0; y < matrix.length; y++) {
+
+				 if (matrix[x][y]["revealed"] === true){
+				 	countRevealedSquares++
+				 }
+			}	
+		}
+
+		if ((countRevealedSquares-1) === ( ( (matrix.length) * (matrix.length) ) - numMines ) ){alert("win!")}
+	
+	} // END winConditionCheck
+
+	function gameOver(){
+		if ( winner === false ){
+			alert("You lose")
+		}
+		else if (winner === true){
+			alert("You win")
+		}
+	} // End Gameover
 
 
 
