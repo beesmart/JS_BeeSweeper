@@ -17,7 +17,8 @@ var freeSpot = {
 	mined: false,
 	clue: false,
 	clicked: false,
-	revealed: false
+	revealed: false,
+	nextToMines: 0
 };
 
 
@@ -71,7 +72,13 @@ createBoard(9)
 		
 		if (firstClick === false) {
 
-			matrix[clickedRow][clickedCell] = Object.create(freeSpot) // Set this square as start square
+			matrix[clickedRow][clickedCell] = freeSpot = {
+												mined: false,
+												clue: false,
+												clicked: true,
+												revealed: false,
+												nextToMines: 0
+											}; // Set this square as start square
 			matrix[clickedRow][clickedCell]["clicked"] = true;
 			firstClick = true;
 			matrix = placeMines(matrix)
@@ -87,6 +94,21 @@ createBoard(9)
 
 	function placeMines(matrix) {
 
+
+		for (var x = 0; x < matrix.length; x++) {
+			for (var y = 0; y < matrix.length; y++) {
+				if (matrix[x][y] === undefined){
+					matrix[x][y] = freeSpot = {
+												mined: false,
+												clue: false,
+												clicked: false,
+												revealed: false,
+												nextToMines: 0
+											};
+				}
+			}
+		}
+
 		// create 10 mines
 		// Generate a random X and Y co-ord
 		for (var i = 0; i < 10; i++) {
@@ -94,56 +116,65 @@ createBoard(9)
 			var randomX = Math.round(Math.random() * 8),
 				randomY = Math.round(Math.random() * 8);
 			// check we dont place a mine in our start point
-		checkStartPlace()
-		checkMinedPlace()
-
-		function checkStartPlace(){		
-		for (var prop in matrix[randomX][randomY]){
-			if (matrix[randomX][randomY].hasOwnProperty(prop)){
+		
 				
-			while (matrix[randomX][randomY]["clicked"] === true){
-				randomX = Math.round(Math.random() * 8);
-				randomY = Math.round(Math.random() * 8);
-				console.log("stopped starting sq mine placement")
-				return
 				
-			}
+						
+					// while (matrix[randomX][randomY]["mined"] === true){
+					// 	randomX = Math.round(Math.random() * 8);
+					// 	randomY = Math.round(Math.random() * 8);
+					// 	console.log("stopped repeated mine placement")
+					// 	checkStartPlace()
 
-			}
-		}
-	}
-		function checkMinedPlace(){
-		for (var prop in matrix[randomX][randomY]){
-			if (matrix[randomX][randomY].hasOwnProperty(prop)){
+					// }
 
-		while (matrix[randomX][randomY]["mined"] === true){
-				randomX = Math.round(Math.random() * 8);
-				randomY = Math.round(Math.random() * 8);
-				console.log("stopped repeated mine placement")
-				return
+					while (matrix[randomX][randomY]["clicked"] === true || matrix[randomX][randomY]["mined"] === true){
+						randomX = Math.round(Math.random() * 8);
+						randomY = Math.round(Math.random() * 8);
+						console.log("stopped starting sq mine placement")
+						
+					} 
+
+
+					
+						matrix[randomX][randomY] = {
+																	mined: true,
+																	clue: false,
+																	clicked: false,
+																	revealed: false,
+																	nextToMines: 0
+																}
+						
+					
+					
+					
+						
+					
+					
 				
-			}
-		}
-	}
-}
+
+				
+			
+				
+			
+
 			// check we dont place a mine on a spot that already has an existing mine
 			
 			
 			// assign the new mine object to the matrix
-			matrix[randomX][randomY] = Object.create(minedSpot);
+			
 
 			
 		};
 		// fill the spaces that are free (not previously mined == undefined) with freeSpot objects 
-		for (var x = 0; x < matrix.length; x++) {
-			for (var y = 0; y < matrix.length; y++) {
-				if (matrix[x][y] === undefined) {matrix[x][y] = Object.create(freeSpot)}
-		}}
+		
 		
 			
 			return matrix
 
 	} // END placemines	
+
+
 
 	// Render the mines
 	function renderMines(matrix){
@@ -213,8 +244,10 @@ createBoard(9)
 		}
 		// Keeps a count of a clues surrounding mines and updates
 		function addNumberClue(x, y){
+			matrix[x][y]["nextToMines"] = counter
 			$(".row" + x).find(".cell" + y).text(counter++)
 			matrix[x][y]["clue"] = true
+
 			return counter
 		}
 		return matrix
@@ -228,18 +261,35 @@ createBoard(9)
 
 
 		function floodFill(x, y){
-			// reveal up
+
+		var onClue = false
+
 			if( x >= 0 && x <= 8 && y >= 0 && y <= 8 ){
 				
-				if (matrix[x][y]["mined"] === false && matrix[x][y]["revealed"] === false ){
+				if ( matrix[x][y]["mined"] === false && matrix[x][y]["revealed"] === false ){
 					
-					matrix[x][y]["revealed"] = true;
-					$(".row" + x).find(".cell" + y).css("background", "red")
+						if (matrix[x][y]["nextToMines"] > 0 && onClue === false){
+
+							matrix[x][y]["revealed"] = true;
+							$(".row" + x).find(".cell" + y).css("background", "red")
+							onClue = true
+						}
+
+						if (matrix[x][y]["nextToMines"] === 0 && onClue === false){
+
+							matrix[x][y]["revealed"] = true;
+							$(".row" + x).find(".cell" + y).css("background", "red")
+
+						} else { return }
+
+
+
 					floodFill(x - 1, y);
 					floodFill(x + 1, y);
             		floodFill(x, y - 1);
             		floodFill(x, y + 1);
-				} else {return}
+
+				} else { return }
 				
 
 			}
@@ -249,26 +299,6 @@ createBoard(9)
 
 
 
-		function checkClueSquare(x, y){
-			
-			
-
-				if (matrix[x][y]["clue"] === true) {
-				  $(".row" + x).find(".cell" + y).css("background", "red")
-				  
-				}
-
-				if(matrix[x][y]["mined"] === false && matrix[x][y]["clue"] === false) {
-					$(".row" + x).find(".cell" + y).css("background", "red")
-					
-				}
-
-				if(matrix[x][y]["mined"] === true) {
-					
-				}
-
-				
-			}
 
 			
 			
@@ -277,7 +307,7 @@ createBoard(9)
 
 			x = parseInt(clickedRow)
 			y = parseInt(clickedCell)
-			foundFullSquare = false
+			
 		}
 
 	} // End revealSquares
