@@ -3,9 +3,14 @@
 window.onload = function(){
 
 var board = $("#main-container"),
+	mineCounter = $("#numMines"),
+	updateBox = $("#update-box"),
+	resetButton = $("#start-reset-button"),
+	
 	firstClick = false,
 	winner = false,
-	numMines = 10
+	numMines = 10,
+	inProgress = false;
 	
 
 var minedSpot = {
@@ -23,7 +28,6 @@ var freeSpot = {
 	nextToMines: 0
 };
 
-
 	function createBoard(v){
 
 	  	// Create 9 rows
@@ -33,12 +37,15 @@ var freeSpot = {
 	       row.setAttribute("data-row", i)   
 	       // Create cells
 	       for(var j=0; j < v; j++){
-	        cell = document.createElement("div");
+	        cell = document.createElement("button");
+	        clueSpan = document.createElement("span");
 	     	// token = document.createElement("div");
 	        cell.className = "cell " + "cell" + j;
+	        clueSpan.className = "clueSpan ";
 	        cell.setAttribute("data-cell", j)
 	        // token.className = "token";
 	        row.appendChild(cell);
+	        cell.appendChild(clueSpan);
 	        // cell.appendChild(token);
 
 	       }
@@ -54,10 +61,17 @@ var freeSpot = {
 		}
 
 
+		mineCounter.text(numMines)
+
 	} //createBoard END
 
 
 createBoard(9)
+anyCell = $(".cell")
+
+
+// ------------------ CLICK EVENTS --------------------//
+// *************************************************** //
 
 
 	$( ".cell" ).click(function() {
@@ -66,39 +80,36 @@ createBoard(9)
 		clickedRow = parseInt($(this).parent().attr('data-row')) 
 		clickedCell = parseInt($(this).attr("data-cell"))
 
-		$(this).css("background", "rgb(45, 174, 45)") // change cell background
 		
-		if (firstClick === false) {
+		if (firstClick === false && inProgress === false) {
 
-			matrix[clickedRow][clickedCell] = freeSpot = {
-												
-												mined: false,
-												clue: false,
-												clicked: true,
-												revealed: false,
-												nextToMines: 0
-											}; 
+			matrix[clickedRow][clickedCell] = new Object(freeSpot)
+
 
 			// Set this square as start square
 			matrix[clickedRow][clickedCell]["clicked"] = true;
 			firstClick = true;
+			timer();
 			matrix = placeMines(matrix)
 			renderMines(matrix)
 			renderClues(matrix)
 			revealSquares()
+			inProgress = true
+
 			
 
 		} // FirstClick check
 
-		else {
 
-			if (matrix[clickedRow][clickedCell]["mined"] === true) {
-				alert("dead")
+		// Now the User has started the game proper, so we're hitting this else condition after every click
+		else {
+			// First check if they've hit a mine, if so, gameover man
+			if (matrix[clickedRow][clickedCell]["mined"] === true) {			
 				gameOver()
 			} 
-
-
-			else { revealSquares();
+			// if not, and the game is in progress, reveal the next square(s) and check for win conditions
+			else if (inProgress === true) { 
+				   revealSquares();
 				   winConditionCheck();
 			}
 			
@@ -107,6 +118,26 @@ createBoard(9)
 
 	}) // End (.cell).click
 
+		// reset the game
+		resetButton.click(function(){
+
+			window.location.reload(true)
+
+		})
+		
+		// mousedown and up listeners to make the bee's expression animate
+		anyCell = $(".cell")
+		anyCell.mousedown(function() {
+		    resetButton.removeClass( "bee-smile" ).addClass( "bee-pause" )
+		})
+		anyCell.mouseup(function() {
+			resetButton.removeClass( "bee-pause" ).addClass( "bee-smile" )
+		})
+
+
+// ------------------ FUNCTIONS -----------------------//
+// *************************************************** //
+
 
 	function placeMines(matrix) {
 
@@ -114,6 +145,7 @@ createBoard(9)
 		for (var x = 0; x < matrix.length; x++) {
 			for (var y = 0; y < matrix.length; y++) {
 				if (matrix[x][y] === undefined){
+					// I've found I need to explicitly create the object here else the property clicked becomes TRUE for all squares
 					matrix[x][y] = freeSpot = {
 												mined: false,
 												clue: false,
@@ -125,8 +157,8 @@ createBoard(9)
 			}
 		}
 
-		// create 10 mines
 		
+		// Generate Mines
 		for (var i = 0; i < numMines; i++) {
 			// Generate a random X and Y co-ord
 			var randomX = Math.round(Math.random() * 8),
@@ -142,13 +174,7 @@ createBoard(9)
 					} 
 					
 					// assign the new mine object to the matrix
-					matrix[randomX][randomY] = {
-												mined: true,
-												clue: false,
-												clicked: false,
-												revealed: false,
-												nextToMines: 0
-															  }
+					matrix[randomX][randomY] = new Object(minedSpot)
 						
 	
 		};
@@ -257,9 +283,10 @@ createBoard(9)
 						if (matrix[x][y]["nextToMines"] > 0 && onClue === false){
 							// set the square to revealed, else we'll continue into infinity
 							matrix[x][y]["revealed"] = true;
-							$(".row" + x).find(".cell" + y).css("background", "red")
+							$(".row" + x).find(".cell" + y).css("background", "rgb(69, 226, 69)")
 							// reveal the clue
-							$(".row" + x).find(".cell" + y).text(matrix[x][y]["nextToMines"])
+
+							clueColor(x, y)
 							// Now we are finished on our clue square, we DONT want to continue to the next clue square, otherwise we'll flood the board
 							// and the only hidden squares will be the mines, a very easy game then
 							onClue = true
@@ -268,7 +295,7 @@ createBoard(9)
 						if (matrix[x][y]["nextToMines"] === 0 && onClue === false){
 
 							matrix[x][y]["revealed"] = true;
-							$(".row" + x).find(".cell" + y).css("background", "red")
+							$(".row" + x).find(".cell" + y).css("background", "rgb(69, 226, 69)")
 
 						} else { return }
 
@@ -294,6 +321,35 @@ createBoard(9)
 			
 		}
 
+
+		function clueColor(x, y){
+			if (matrix[x][y]["nextToMines"] === 1) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueOne").text(matrix[x][y]["nextToMines"])
+			}
+			else if (matrix[x][y]["nextToMines"] === 2) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueTwo").text(matrix[x][y]["nextToMines"])
+			}
+			else if (matrix[x][y]["nextToMines"] === 3) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueThree").text(matrix[x][y]["nextToMines"])
+			}
+			else if (matrix[x][y]["nextToMines"] === 4) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueFour").text(matrix[x][y]["nextToMines"])
+			}
+			else if (matrix[x][y]["nextToMines"] === 5) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueFive").text(matrix[x][y]["nextToMines"])
+			}
+			else if (matrix[x][y]["nextToMines"] === 6) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueSix").text(matrix[x][y]["nextToMines"])
+			}
+			else if (matrix[x][y]["nextToMines"] === 7) {
+				$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueSeven").text(matrix[x][y]["nextToMines"])
+			}
+
+			else if (matrix[x][y]["nextToMines"] === 8){$(".row" + x).find(".cell" + y).find(".clueSpan").addClass("clueEight").text(matrix[x][y]["nextToMines"])}
+			
+		}
+
+
 	} // End revealSquares
 
 	function winConditionCheck(){
@@ -309,18 +365,76 @@ createBoard(9)
 			}	
 		}
 
-		if ((countRevealedSquares-1) === ( ( (matrix.length) * (matrix.length) ) - numMines ) ){alert("win!")}
+		if ((countRevealedSquares-1) === ( ( (matrix.length) * (matrix.length) ) - numMines ) ){
+			winner = true;
+			gameOver();
+		}
 	
 	} // END winConditionCheck
 
 	function gameOver(){
-		if ( winner === false ){
-			alert("You lose")
+		clearTimeout(t);
+
+		if ( winner === false && inProgress === true ) {		
+			inProgress = false
+			$("#start-reset-button").removeClass( "bee-pause bee-smile" ).addClass( "bee-lose" )
+			sfx()
+			updateBox.addClass("loser-box")
+			updateBox.text("You made the Bee's angry! Shame on you!")
+			for (var x = 0; x < matrix.length; x++) {
+			for (var y = 0; y < matrix.length; y++) {
+				if (matrix[x][y]["mined"] === true) {
+							
+						$(".row" + x).find(".cell" + y).addClass("hive-mine")
+						
+						}}}
+
 		}
-		else if (winner === true){
-			alert("You win")
+
+		else if (winner === true) {
+			inProgress = false
+			updateBox.addClass("winner-box")
+			updateBox.text("What a careful chap! Well done")
+			
 		}
 	} // End Gameover
+
+
+
+var h1 = document.getElementById('timer-digits'),
+    seconds = 0, minutes = 0, hours = 0,
+    t;
+
+function add() {
+    seconds++;
+    if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+        if (minutes >= 60) {
+            minutes = 0;
+            hours++;
+        }
+    }
+    
+    h1.textContent = (minutes ? (minutes > 9 ? minutes : "0" + minutes) : "00") + ":" + (seconds > 9 ? seconds : "0" + seconds);
+
+    timer();
+}
+function timer() {
+    t = setTimeout(add, 1000);
+}
+
+
+function sfx(){
+
+	var audio = document.createElement("audio");
+	audio.src = "../JS_BeeSweeper/resources/beeswarm.ogg";
+	// audio.addEventListener("ended", function () {
+	// 	document.removeChild(this);
+	// }, false);
+	audio.play();
+}
+
 
 
 

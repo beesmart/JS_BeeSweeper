@@ -96,23 +96,182 @@ textarea {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+    
+    body {
+        margin: 20px 25px;
+    }
 
+    header {
+        margin: 10px;
+    }
+
+    footer {
+        margin: 10px;
+    }
+
+    #page-container {
+        margin: 40px 75px;
+    }
 
     #main-container {
-        margin: 20px 20px;
+       float: left;
+    }
+
+    header h1 {
+        margin: 20px;
+        color: rgb(78, 132, 250);
+    }
+
+     header h1 span {
+        margin: 0px;
+        background: rgb(255, 255, 52);
+        border: 1px solid rgb(155, 149, 46);
+        border-radius: 20px;
+        padding: 15px;
     }
 
     .cell {
-        border: 1px solid black;
+     
         background: green;
-        height: 25px;
-        width: 25px;
+        height: 30px;
+        width: 30px;
         float: left;
+        background: url(../img/grass.png) 3px 3px no-repeat;
+        background-size: 21px 22px;
+        background-color: green;
+
+
     }
 
     .row {
         clear: both;
     }
+
+    #utility-bar {
+        border: 1px solid black;
+        background: rgb(65, 118, 65);
+        height: 50px;
+        width: 264px;
+        padding: 2px;
+        text-align: center;
+    }
+    
+    .utility-box {
+        height: 40px;
+        width: 70px;
+        background: rgb(229, 227, 28);
+        margin: 5px;
+        border: 1px solid rgb(56, 56, 6);
+        border-radius: 9px;
+
+    }
+
+    #mine-box {
+        float: left;
+    }
+
+    #numMines {
+        font-size: 22px;
+    }
+
+    #mine-box p {
+        margin-top: -8px;
+        font-size: 14px;
+    }
+
+    #timer-box {
+        float: right;
+    }
+
+    #timer-digits {
+        font-size: 23px;
+        margin-top: 5px;
+    }
+
+    #start-reset-button {
+        margin: 0 auto;
+        width: 71px;
+        height: 49px;
+        background-size: 60px 50px;
+        background-color: rgb(68, 157, 195);
+        border: 1px solid black;
+    }
+
+    .bee-smile {
+        background: url(../img/bee_game_smile.png) 3px -6px no-repeat;
+    }
+
+    .bee-smile:hover, .bee-pause  {
+        background: url(../img/bee_game_pause.png) 3px -6px no-repeat;
+    }
+
+    .bee-lose {
+        background: url(../img/bee_game_lose.png) 3px -6px no-repeat;
+    }
+
+    .hive-mine {
+        background: url(../img/hive.png) 3px 3px no-repeat;
+        background-color: rgb(37, 37, 37);
+        background-size: 21px 22px;
+    }
+
+    #update-container {
+        float: left;
+        margin: 20px 10px 10px 20px;
+    }
+
+    .winner-box {
+        width:200px;
+        height: 200px;
+    }
+
+    .loser-box {
+        width:200px;
+        height: 200px;
+    }
+
+    .clueSpan {
+        font-size: 19px;
+    }
+
+    .clueOne {
+
+        color: rgb(15, 15, 216);
+
+    }
+
+    .clueTwo {
+
+        color: rgb(148, 103, 0);
+        
+    }
+
+    .clueThree {
+        color: red;
+    }
+
+    .clueFour {
+        color: purple;
+    }
+
+    .clueFive {
+        color: maroon;
+    }
+
+
+    .clueSix {
+        color: cyan;
+    }
+
+    .clueSeven {
+        color: black;
+    }
+
+    .clueEight {
+        color: gray;
+    }
+
+
 
 
 
