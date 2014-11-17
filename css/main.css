@@ -99,32 +99,59 @@ textarea {
     
     body {
         margin: 20px 25px;
-    }
+        background: rgba(140, 213, 115, 1);
+ }
 
+ 
+    
     header {
         margin: 10px;
     }
 
     footer {
-        margin: 10px;
+        clear: both;
+        float: right;
+        margin: 0 auto;
     }
 
     #page-container {
-        margin: 40px 75px;
+        margin: 20px 75px;
+    }
+
+    #difficulty-container {
+        margin: 10px;
+        display: inline-flex;
+    }
+
+    #difficulty-container p {
+        font-size: 15px;
+        margin: 1px 10px;
+        float: left;
+        color: black;
+    }
+
+    #difficulty-container select {
+        background: rgb(236, 236, 5);
+        font-size: 15px;
+        padding: 1px 2px;
+
     }
 
     #main-container {
        float: left;
+       padding: 10px;
+       background: rgb(221, 226, 25);
+       margin-bottom: 30px;
     }
 
     header h1 {
-        margin: 20px;
+        margin: 40px 90px 0 90px;
         color: rgb(78, 132, 250);
     }
 
      header h1 span {
         margin: 0px;
-        background: rgb(255, 255, 52);
+        background: rgb(240, 240, 85);
         border: 1px solid rgb(155, 149, 46);
         border-radius: 20px;
         padding: 15px;
@@ -143,15 +170,21 @@ textarea {
 
     }
 
+    .flagged {
+        background: url(../img/flag.png) 3px 3px no-repeat;
+        background-size: 21px 22px;
+        background-color: green;
+    }
+
     .row {
         clear: both;
     }
 
     #utility-bar {
-        border: 1px solid black;
+   
         background: rgb(65, 118, 65);
         height: 50px;
-        width: 264px;
+     
         padding: 2px;
         text-align: center;
     }
@@ -163,6 +196,11 @@ textarea {
         margin: 5px;
         border: 1px solid rgb(56, 56, 6);
         border-radius: 9px;
+
+    }
+
+    #utility-box .easy-width {
+       
 
     }
 
@@ -215,19 +253,40 @@ textarea {
         background-size: 21px 22px;
     }
 
+    #instructions {
+        background: rgba(194, 255, 187, 0.5);
+        padding: 2px 26px;
+        width: 52%;
+        clear: both;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
     #update-container {
         float: left;
-        margin: 20px 10px 10px 20px;
+        margin: 18px 10px 10px 40px;
+        background: rgba(172, 247, 219, 0.6);
+        border-radius: 10px;
+        border: 2px solid rgb(213, 236, 214);
+        display: none;
+        text-align: center;
+    }
+
+    #update-box {
+        padding: 10px;
+        font-size: 15px;
     }
 
     .winner-box {
-        width:200px;
-        height: 200px;
+        width: 300px;
+        height: 20px;
+        color: rgb(145, 78, 58);
     }
 
     .loser-box {
-        width:200px;
-        height: 200px;
+        width: 300px;
+        height: 20px;
+        color: rgb(145, 78, 58);
     }
 
     .clueSpan {
@@ -270,6 +329,42 @@ textarea {
     .clueEight {
         color: gray;
     }
+
+
+    .credit {
+       margin-top: 10px;
+    }
+
+    .credit a {
+
+        text-decoration: none;
+        color: rgb(194, 140, 42);
+        
+    }
+
+    .credit p {
+        font-size: 0.9em;
+    }
+        
+    .credit span {
+
+        font-size: 0.9em;
+        padding: 5px 9px;
+        background: rgb(63, 60, 60);
+        border-radius: 7px;
+        margin-left: 4px;        
+    }
+
+   .credit a:visited {
+
+        color: rgb(230, 170, 237);
+    }
+
+     .credit a:hover {
+
+        color: rgb(253, 176, 8);
+    }
+
 
 
 
