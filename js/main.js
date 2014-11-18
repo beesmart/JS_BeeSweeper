@@ -220,10 +220,10 @@ anyCell.on("contextmenu", anyCell, function(e){
 
 		}
 		// if cell does not have the class "flagged" - add it
-	   	else { 
+	   	else { if (numFlags < numMines && inProgress === true){
 	   		$(this).addClass("flagged")
 			matrix[clickedFlagRow][clickedFlagCell]["flagged"] = true
-			numFlags = numFlags + 1
+			numFlags = numFlags + 1}
 	   	}
 	   }
 
